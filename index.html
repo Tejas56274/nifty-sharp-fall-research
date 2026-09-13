@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Research Console — NIFTY Sharp-Fall Study</title>
+<style>
+  :root{
+    --paper:#F6F4EE;
+    --paper-raised:#FDFCF9;
+    --ink:#1C2430;
+    --ink-soft:#5B6472;
+    --line:#DCD6C8;
+    --evidence:#2E5E4E;
+    --evidence-bg:#E7EFE9;
+    --risk:#A6431F;
+    --risk-bg:#F5E7DF;
+    --data:#1F4B8F;
+    --data-bg:#E7EDF7;
+    --serif: "Iowan Old Style", "Palatino Linotype", Georgia, "Source Serif Pro", serif;
+    --mono: ui-monospace, "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    line-height:1.5;
+  }
+  .wrap{
+    max-width:920px;
+    margin:0 auto;
+    padding:48px 24px 96px;
+  }
+  header.masthead{
+    border-bottom:1px solid var(--line);
+    padding-bottom:28px;
+    margin-bottom:36px;
+  }
+  .kicker{
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:.02em;
+    color:var(--ink-soft);
+    margin-bottom:10px;
+  }
+  h1.title{
+    font-family:var(--serif);
+    font-weight:600;
+    font-size:34px;
+    line-height:1.2;
+    margin:0 0 12px;
+    max-width:680px;
+  }
+  .subtitle{
+    color:var(--ink-soft);
+    font-size:15px;
+    max-width:600px;
+  }
+
+  /* stepper */
+  .stepper{
+    display:flex;
+    gap:0;
+    margin-bottom:40px;
+    border:1px solid var(--line);
+    border-radius:10px;
+    overflow:hidden;
+    background:var(--paper-raised);
+  }
+  .step{
+    flex:1;
+    padding:14px 12px;
+    text-align:center;
+    font-family:var(--mono);
+    font-size:12.5px;
+    color:var(--ink-soft);
+    border-right:1px solid var(--line);
+    cursor:default;
+    position:relative;
+    transition:background .2s;
+  }
+  .step:last-child{border-right:none;}
+  .step .n{display:block;font-size:10px;opacity:.7;margin-bottom:3px;}
+  .step.active{
+    background:var(--ink);
+    color:var(--paper);
+  }
+  .step.done{
+    color:var(--evidence);
+    cursor:pointer;
+  }
+  .step.done:hover{background:var(--evidence-bg);}
+
+  .stage{
+    display:none;
+    animation:fade .35s ease;
+  }
+  .stage.active{display:block;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+  .card{
+    background:var(--paper-raised);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:28px 30px;
+    margin-bottom:20px;
+  }
+  h2.stage-title{
+    font-family:var(--serif);
+    font-size:22px;
+    margin:0 0 6px;
+  }
+  .stage-desc{
+    color:var(--ink-soft);
+    font-size:14.5px;
+    margin-bottom:22px;
+    max-width:600px;
+  }
+
+  /* ASK stage */
+  textarea.question-box{
+    width:100%;
+    font-family:var(--serif);
+    font-size:19px;
+    padding:16px 18px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    background:var(--paper);
+    color:var(--ink);
+    resize:none;
+    min-height:64px;
+  }
+  .btn{
+    font-family: -apple-system, sans-serif;
+    font-size:14px;
+    font-weight:600;
+    padding:11px 20px;
+    border-radius:7px;
+    border:1px solid var(--ink);
+    background:var(--ink);
+    color:var(--paper);
+    cursor:pointer;
+    transition:opacity .15s;
+  }
+  .btn:hover{opacity:.85;}
+  .btn.secondary{
+    background:transparent;
+    color:var(--ink);
+  }
+  .btn-row{margin-top:18px;display:flex;gap:10px;}
+
+  /* CLARIFY stage */
+  .attribution-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:14px;
+    margin-bottom:26px;
+  }
+  .attr-box{
+    border-radius:8px;
+    padding:14px 16px;
+    font-size:13px;
+  }
+  .attr-box .lbl{
+    font-family:var(--mono);
+    font-size:10.5px;
+    color:var(--ink-soft);
+    margin-bottom:8px;
+    display:block;
+  }
+  .attr-box.said{background:var(--data-bg); color:#16305C;}
+  .attr-box.assumed{background:var(--risk-bg); color:#6E2E15;}
+  .attr-box.ask{background:var(--evidence-bg); color:#1E3F33;}
+  .attr-box ul{margin:0;padding-left:16px;}
+  .attr-box li{margin-bottom:4px;}
+
+  .params{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px 28px;
+  }
+  .field{display:flex;flex-direction:column;gap:6px;}
+  .field label{
+    font-size:13px;
+    font-weight:600;
+  }
+  .field .hint{font-size:12px;color:var(--ink-soft);font-weight:400;}
+  .field input[type=range]{width:100%;accent-color:var(--evidence);}
+  .field .val{font-family:var(--mono);font-size:13px;color:var(--evidence);}
+  .field select, .field input[type=number]{
+    padding:8px 10px;
+    border:1px solid var(--line);
+    border-radius:6px;
+    background:var(--paper);
+    font-size:13.5px;
+    color:var(--ink);
+  }
+
+  /* DEFINE stage */
+  table.spec{
+    width:100%;
+    border-collapse:collapse;
+    font-size:14px;
+  }
+  table.spec tr{border-bottom:1px solid var(--line);}
+  table.spec tr:last-child{border-bottom:none;}
+  table.spec td{padding:11px 6px;vertical-align:top;}
+  table.spec td.k{
+    font-family:var(--mono);
+    font-size:11.5px;
+    color:var(--ink-soft);
+    width:180px;
+    white-space:nowrap;
+  }
+  table.spec td.v{font-weight:500;}
+  .hypothesis-box{
+    margin-top:20px;
+    border-left:3px solid var(--data);
+    background:var(--data-bg);
+    padding:14px 18px;
+    border-radius:0 8px 8px 0;
+    font-family:var(--serif);
+    font-style:italic;
+    font-size:15.5px;
+    color:#16305C;
+  }
+
+  /* TEST stage */
+  .run-panel{text-align:center;padding:20px 0 6px;}
+  .progress-line{
+    font-family:var(--mono);
+    font-size:12.5px;
+    color:var(--ink-soft);
+    margin-top:16px;
+    min-height:20px;
+  }
+  canvas#priceChart{width:100%;height:220px;display:block;margin-top:18px;border:1px solid var(--line);border-radius:8px;background:var(--paper);}
+  .legend{display:flex;gap:18px;font-size:12px;color:var(--ink-soft);margin-top:8px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
+
+  /* LEARN stage */
+  .stat-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:14px;
+    margin-bottom:24px;
+  }
+  .stat{
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:14px 14px;
+    background:var(--paper);
+  }
+  .stat .num{font-family:var(--mono);font-size:22px;color:var(--ink);font-weight:600;}
+  .stat .lbl{font-size:11.5px;color:var(--ink-soft);margin-top:4px;}
+  .divider{height:1px;background:var(--line);margin:26px 0;}
+  .section-label{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.03em;
+    color:var(--ink-soft);
+    margin-bottom:10px;
+  }
+  .data-says{
+    background:var(--data-bg);
+    border-radius:8px;
+    padding:16px 18px;
+    font-size:14.5px;
+    margin-bottom:18px;
+    color:#16305C;
+  }
+  .system-thinks{
+    background:var(--evidence-bg);
+    border-radius:8px;
+    padding:16px 18px;
+    font-size:14.5px;
+    margin-bottom:18px;
+    color:#1E3F33;
+  }
+  .risk-note{
+    background:var(--risk-bg);
+    border-radius:8px;
+    padding:16px 18px;
+    font-size:13.5px;
+    color:#6E2E15;
+  }
+  .risk-note ul{margin:6px 0 0;padding-left:18px;}
+  .risk-note li{margin-bottom:5px;}
+  canvas#histChart{width:100%;height:180px;display:block;border:1px solid var(--line);border-radius:8px;background:var(--paper);}
+  .next-qs{font-size:14px;}
+  .next-qs li{margin-bottom:6px;}
+
+  @media (max-width: 640px){
+    .attribution-grid{grid-template-columns:1fr;}
+    .params{grid-template-columns:1fr;}
+    .stat-grid{grid-template-columns:1fr 1fr;}
+    .stepper{flex-wrap:wrap;}
+    .step{flex:1 1 33%;border-bottom:1px solid var(--line);}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="kicker">RESEARCH CONSOLE — QUESTION → HYPOTHESIS → EXPERIMENT → EVIDENCE → LEARNING</div>
+    <h1 class="title">Turn a market belief into a testable experiment.</h1>
+    <div class="subtitle">Ask a question in plain language. This tool makes every hidden assumption visible before it runs anything — so you know exactly what was tested, and what wasn't.</div>
+  </header>
+
+  <div class="stepper" id="stepper"></div>
+
+  <!-- STAGE 1: ASK -->
+  <section class="stage" id="stage-ask">
+    <div class="card">
+      <h2 class="stage-title">Ask</h2>
+      <div class="stage-desc">Enter a question the way you'd actually ask it. Don't worry about precision yet — that's the next step.</div>
+      <textarea class="question-box" id="questionInput">Does buying NIFTY after a sharp fall work?</textarea>
+      <div class="btn-row">
+        <button class="btn" onclick="goStage(1)">Interpret this question →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- STAGE 2: CLARIFY -->
+  <section class="stage" id="stage-clarify">
+    <div class="card">
+      <h2 class="stage-title">Clarify</h2>
+      <div class="stage-desc">Your question is underspecified — that's normal. Here's what you actually said, what we had to assume, and what we'd ideally ask you. Adjust anything below before we lock in the experiment.</div>
+
+      <div class="attribution-grid">
+        <div class="attr-box said">
+          <span class="lbl">WHAT YOU SAID</span>
+          <ul><li>Instrument: NIFTY</li><li>Action: buying</li><li>Trigger: "a sharp fall"</li><li>Goal: does it "work"</li></ul>
+        </div>
+        <div class="attr-box assumed">
+          <span class="lbl">WHAT WE ASSUMED (edit below)</span>
+          <ul><li>"Sharp fall" = single-day drop</li><li>Entry at next day's close</li><li>Flat cost estimate</li><li>Full history as test window</li></ul>
+        </div>
+        <div class="attr-box ask">
+          <span class="lbl">WHAT WE'D ASK A REAL USER</span>
+          <ul><li>Multi-day fall instead?</li><li>Your actual holding horizon?</li><li>"Work" = beat buy &amp; hold, or just be profitable?</li></ul>
+        </div>
+      </div>
+
+      <div class="params">
+        <div class="field">
+          <label>Sharp-fall threshold <span class="val" id="threshVal">−2.0%</span></label>
+          <span class="hint">Single-day close-to-close decline that counts as "sharp"</span>
+          <input type="range" id="threshold" min="-5" max="-0.5" step="0.1" value="-2.0" oninput="updateParam(this)">
+        </div>
+        <div class="field">
+          <label>Holding period <span class="val" id="holdVal">10 days</span></label>
+          <span class="hint">How long the position is held after entry</span>
+          <input type="range" id="holding" min="1" max="40" step="1" value="10" oninput="updateParam(this)">
+        </div>
+        <div class="field">
+          <label>Entry timing</label>
+          <span class="hint">When the position is opened relative to the trigger day</span>
+          <select id="entryTiming" onchange="updateParam(this)">
+            <option value="next_close" selected>Next day's close (avoids look-ahead)</option>
+            <option value="same_close">Same day's close (uses trigger's own price)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Round-trip cost <span class="val" id="costVal">0.10%</span></label>
+          <span class="hint">Illustrative cost + slippage assumption</span>
+          <input type="range" id="cost" min="0" max="0.5" step="0.01" value="0.10" oninput="updateParam(this)">
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn secondary" onclick="goStage(0)">← Back</button>
+        <button class="btn" onclick="goStage(2)">Define the experiment →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- STAGE 3: DEFINE -->
+  <section class="stage" id="stage-define">
+    <div class="card">
+      <h2 class="stage-title">Define</h2>
+      <div class="stage-desc">Your question, converted into a structured, reproducible experiment.</div>
+      <table class="spec">
+        <tr><td class="k">MARKET</td><td class="v">NIFTY 50 (index-level proxy)</td></tr>
+        <tr><td class="k">CONDITION</td><td class="v" id="specCondition">Single-day close-to-close return ≤ −2.0%</td></tr>
+        <tr><td class="k">ENTRY</td><td class="v" id="specEntry">Next trading day's close</td></tr>
+        <tr><td class="k">EXIT</td><td class="v" id="specExit">10 trading days after entry, at close</td></tr>
+        <tr><td class="k">HOLDING PERIOD</td><td class="v" id="specHolding">10 trading days</td></tr>
+        <tr><td class="k">TEST PERIOD</td><td class="v" id="specPeriod">Full simulated history (~15 years, ~3,780 sessions)</td></tr>
+        <tr><td class="k">COST ASSUMPTIONS</td><td class="v" id="specCost">0.10% round-trip, no leverage, dividends not modeled</td></tr>
+      </table>
+      <div class="hypothesis-box" id="specHypothesis">
+        "Returns in the 10 trading days following a single-day fall of 2.0% or more are, on average, higher than returns following a randomly chosen day."
+      </div>
+      <div class="btn-row">
+        <button class="btn secondary" onclick="goStage(1)">← Back</button>
+        <button class="btn" onclick="goStage(3)">Run the test →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- STAGE 4: TEST -->
+  <section class="stage" id="stage-test">
+    <div class="card">
+      <h2 class="stage-title">Test</h2>
+      <div class="stage-desc">Running the experiment against a <strong>simulated</strong> price series built to mimic NIFTY's real character — daily volatility clustering, fat-tailed crash days, and a long-run upward drift — rather than live market data.</div>
+      <div class="run-panel">
+        <button class="btn" id="runBtn" onclick="runExperiment()">▶ Run experiment</button>
+        <div class="progress-line" id="progressLine"></div>
+      </div>
+      <canvas id="priceChart"></canvas>
+      <div class="legend">
+        <span><span class="dot" style="background:var(--data)"></span>Simulated NIFTY close</span>
+        <span><span class="dot" style="background:var(--risk)"></span>Sharp-fall trigger day</span>
+      </div>
+      <div class="btn-row">
+        <button class="btn secondary" onclick="goStage(2)">← Back</button>
+        <button class="btn" id="toLearnBtn" onclick="goStage(4)" style="display:none;">See what it shows →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- STAGE 5: LEARN -->
+  <section class="stage" id="stage-learn">
+    <div class="card">
+      <h2 class="stage-title">Learn</h2>
+      <div class="stage-desc">The outcome — split deliberately into what the numbers show, and what we think that means. These are not the same thing.</div>
+
+      <div class="stat-grid" id="statGrid"></div>
+
+      <canvas id="histChart"></canvas>
+
+      <div class="divider"></div>
+
+      <div class="section-label">WHAT THE DATA ACTUALLY SHOWS</div>
+      <div class="data-says" id="dataShows"></div>
+
+      <div class="section-label">WHAT THE SYSTEM CONCLUDES (an interpretation — not a fact)</div>
+      <div class="system-thinks" id="systemThinks"></div>
+
+      <div class="section-label">REASONS TO DOUBT THIS RESULT</div>
+      <div class="risk-note" id="riskNote"></div>
+
+      <div class="divider"></div>
+      <div class="section-label">WHAT TO INVESTIGATE NEXT</div>
+      <ul class="next-qs" id="nextQs"></ul>
+
+      <div class="btn-row">
+        <button class="btn secondary" onclick="goStage(3)">← Back</button>
+        <button class="btn secondary" onclick="goStage(1)">↺ Change assumptions &amp; re-run</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* ---------- state ---------- */
+const STAGES = ['ask','clarify','define','test','learn'];
+const STAGE_LABELS = ['Ask','Clarify','Define','Test','Learn'];
+let currentStage = 0;
+let maxUnlocked = 0;
+
+let params = {
+  threshold: -2.0,   // %
+  holding: 10,        // trading days
+  entryTiming: 'next_close',
+  cost: 0.10          // % round trip
+};
+
+/* ---------- stepper ---------- */
+function renderStepper(){
+  const el = document.getElementById('stepper');
+  el.innerHTML = STAGE_LABELS.map((label,i)=>{
+    let cls = 'step';
+    if(i===currentStage) cls+=' active';
+    else if(i<=maxUnlocked) cls+=' done';
+    return `<div class="${cls}" onclick="${i<=maxUnlocked ? `goStage(${i})` : ''}">
+      <span class="n">0${i+1}</span>${label}
+    </div>`;
+  }).join('');
+}
+
+function goStage(i){
+  currentStage = i;
+  maxUnlocked = Math.max(maxUnlocked, i);
+  STAGES.forEach((s,idx)=>{
+    document.getElementById('stage-'+s).classList.toggle('active', idx===i);
+  });
+  renderStepper();
+  if(i===2) updateDefineStage();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* ---------- clarify params ---------- */
+function updateParam(el){
+  if(el.id==='threshold'){ params.threshold = parseFloat(el.value); document.getElementById('threshVal').textContent = params.threshold.toFixed(1)+'%'; }
+  if(el.id==='holding'){ params.holding = parseInt(el.value); document.getElementById('holdVal').textContent = params.holding+' days'; }
+  if(el.id==='cost'){ params.cost = parseFloat(el.value); document.getElementById('costVal').textContent = params.cost.toFixed(2)+'%'; }
+  if(el.id==='entryTiming'){ params.entryTiming = el.value; }
+}
+
+function updateDefineStage(){
+  document.getElementById('specCondition').textContent = `Single-day close-to-close return ≤ ${params.threshold.toFixed(1)}%`;
+  document.getElementById('specEntry').textContent = params.entryTiming==='next_close' ? "Next trading day's close" : "Same day's close (trigger day)";
+  document.getElementById('specExit').textContent = `${params.holding} trading days after entry, at close`;
+  document.getElementById('specHolding').textContent = `${params.holding} trading days`;
+  document.getElementById('specCost').textContent = `${params.cost.toFixed(2)}% round-trip, no leverage, dividends not modeled`;
+  document.getElementById('specHypothesis').textContent =
+    `"Returns in the ${params.holding} trading days following a single-day fall of ${Math.abs(params.threshold).toFixed(1)}% or more are, on average, higher than returns following a randomly chosen day."`;
+}
+
+/* ---------- mock data generation (seeded) ---------- */
+function mulberry32(seed){
+  return function(){
+    seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  }
+}
+function gaussian(rand){
+  let u=0,v=0;
+  while(u===0) u=rand();
+  while(v===0) v=rand();
+  return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);
+}
+
+let series = null; // {closes, dates}
+
+function generateSeries(){
+  const rand = mulberry32(20260913);
+  const N = 15*252; // ~15 years of trading days
+  let price = 8000;
+  let vol = 0.009; // baseline daily vol ~0.9%
+  const closes = [price];
+  for(let i=1;i<N;i++){
+    // volatility clustering: vol drifts, occasionally spikes into a "crisis regime"
+    vol = Math.max(0.006, vol*0.98 + 0.02*Math.abs(gaussian(rand))*0.01);
+    let inCrisis = (rand() < 0.0025); // start of a crisis burst
+    if(inCrisis){ vol = 0.028 + rand()*0.02; }
+    let drift = 0.00035; // small long-run positive drift
+    let shock = gaussian(rand)*vol;
+    // fat tail: rare extra negative jump
+    if(rand() < 0.006){ shock -= (0.02 + rand()*0.05); }
+    let ret = drift + shock;
+    price = price * (1+ret);
+    closes.push(price);
+  }
+  return closes;
+}
+
+function drawPriceChart(closes, triggerIdxs){
+  const canvas = document.getElementById('priceChart');
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio||1;
+  const w = canvas.clientWidth, h = 220;
+  canvas.width = w*dpr; canvas.height = h*dpr;
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,w,h);
+
+  const min = Math.min(...closes), max = Math.max(...closes);
+  const pad = 10;
+  const x = i => pad + (i/(closes.length-1))*(w-2*pad);
+  const y = v => h-pad - ((v-min)/(max-min))*(h-2*pad);
+
+  ctx.strokeStyle = '#1F4B8F';
+  ctx.lineWidth = 1.3;
+  ctx.beginPath();
+  closes.forEach((c,i)=>{ i===0?ctx.moveTo(x(i),y(c)):ctx.lineTo(x(i),y(c)); });
+  ctx.stroke();
+
+  ctx.fillStyle = '#A6431F';
+  triggerIdxs.forEach(i=>{
+    ctx.beginPath();
+    ctx.arc(x(i), y(closes[i]), 2.2, 0, Math.PI*2);
+    ctx.fill();
+  });
+}
+
+function drawHistChart(triggerFwd, baselineFwd){
+  const canvas = document.getElementById('histChart');
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio||1;
+  const w = canvas.clientWidth, h = 180;
+  canvas.width = w*dpr; canvas.height = h*dpr;
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,w,h);
+
+  const all = triggerFwd.concat(baselineFwd);
+  const min = Math.min(...all), max = Math.max(...all);
+  const bins = 18;
+  const binW = (max-min)/bins;
+  function histogram(arr){
+    const bins_ = new Array(bins).fill(0);
+    arr.forEach(v=>{
+      let idx = Math.floor((v-min)/binW);
+      if(idx>=bins) idx=bins-1; if(idx<0) idx=0;
+      bins_[idx]++;
+    });
+    return bins_;
+  }
+  const hb = histogram(baselineFwd).map(v=>v/baselineFwd.length);
+  const ht = histogram(triggerFwd).map(v=>v/triggerFwd.length);
+  const maxH = Math.max(...hb, ...ht);
+  const pad=10, plotW=w-2*pad, plotH=h-2*pad;
+  const bw = plotW/bins;
+
+  for(let i=0;i<bins;i++){
+    const bh1 = (hb[i]/maxH)*plotH;
+    ctx.fillStyle = 'rgba(31,75,143,0.35)';
+    ctx.fillRect(pad+i*bw, h-pad-bh1, bw*0.42, bh1);
+    const bh2 = (ht[i]/maxH)*plotH;
+    ctx.fillStyle = 'rgba(166,67,31,0.55)';
+    ctx.fillRect(pad+i*bw+bw*0.45, h-pad-bh2, bw*0.42, bh2);
+  }
+  // zero line
+  const zeroX = pad + ((0-min)/(max-min))*plotW;
+  ctx.strokeStyle = '#5B6472';
+  ctx.setLineDash([3,3]);
+  ctx.beginPath(); ctx.moveTo(zeroX, pad); ctx.lineTo(zeroX, h-pad); ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+/* ---------- experiment ---------- */
+function runExperiment(){
+  document.getElementById('runBtn').disabled = true;
+  const progress = document.getElementById('progressLine');
+  const steps = [
+    'Generating simulated 15-year daily series…',
+    'Computing daily returns…',
+    'Scanning for sharp-fall trigger days ('+params.threshold.toFixed(1)+'%)…',
+    'Measuring forward '+params.holding+'-day returns after each trigger…',
+    'Building random-day baseline for comparison…',
+    'Applying cost assumption ('+params.cost.toFixed(2)+'% round-trip)…',
+    'Done.'
+  ];
+  let i=0;
+  const interval = setInterval(()=>{
+    progress.textContent = steps[i];
+    i++;
+    if(i>=steps.length){
+      clearInterval(interval);
+      computeAndRender();
+      document.getElementById('toLearnBtn').style.display='inline-block';
+    }
+  }, 260);
+}
+
+let lastResult = null;
+
+function computeAndRender(){
+  series = generateSeries();
+  const closes = series;
+  const rets = [];
+  for(let i=1;i<closes.length;i++) rets.push(closes[i]/closes[i-1]-1);
+
+  const threshFrac = params.threshold/100;
+  const costFrac = params.cost/100;
+  const H = params.holding;
+
+  // trigger day = index i (in rets array, corresponds to closes[i+1]) where ret <= threshold
+  let triggerIdxsInCloses = []; // index into closes array of the trigger day
+  for(let i=0;i<rets.length;i++){
+    if(rets[i] <= threshFrac){
+      triggerIdxsInCloses.push(i+1); // closes index of the fall day
+    }
+  }
+
+  function forwardReturn(entryCloseIdx){
+    const exitIdx = entryCloseIdx + H;
+    if(exitIdx >= closes.length) return null;
+    const raw = closes[exitIdx]/closes[entryCloseIdx]-1;
+    return raw - costFrac;
+  }
+
+  const triggerFwd = [];
+  triggerIdxsInCloses.forEach(idx=>{
+    const entryIdx = params.entryTiming==='next_close' ? idx+1 : idx;
+    if(entryIdx < closes.length){
+      const r = forwardReturn(entryIdx);
+      if(r!==null) triggerFwd.push(r);
+    }
+  });
+
+  // baseline: forward return from every day in the series (all-day baseline)
+  const baselineFwd = [];
+  for(let idx=0; idx<closes.length; idx++){
+    const r = forwardReturn(idx);
+    if(r!==null) baselineFwd.push(r);
+  }
+
+  const mean = arr => arr.reduce((a,b)=>a+b,0)/arr.length;
+  const winRate = arr => arr.filter(v=>v>0).length/arr.length;
+  const median = arr => { const s=[...arr].sort((a,b)=>a-b); const m=Math.floor(s.length/2); return s.length%2? s[m] : (s[m-1]+s[m])/2; };
+
+  lastResult = {
+    triggerFwd, baselineFwd,
+    triggerMean: mean(triggerFwd), baselineMean: mean(baselineFwd),
+    triggerWin: winRate(triggerFwd), baselineWin: winRate(baselineFwd),
+    triggerMedian: median(triggerFwd),
+    nEvents: triggerFwd.length,
+    triggerIdxsInCloses
+  };
+
+  drawPriceChart(closes, triggerIdxsInCloses);
+  renderLearnStage();
+}
+
+function pct(x){ return (x*100).toFixed(2)+'%'; }
+
+function renderLearnStage(){
+  const r = lastResult;
+  const edge = r.triggerMean - r.baselineMean;
+
+  document.getElementById('statGrid').innerHTML = `
+    <div class="stat"><div class="num">${r.nEvents}</div><div class="lbl">TRIGGER EVENTS FOUND</div></div>
+    <div class="stat"><div class="num">${pct(r.triggerMean)}</div><div class="lbl">AVG ${params.holding}D RETURN AFTER FALL</div></div>
+    <div class="stat"><div class="num">${pct(r.baselineMean)}</div><div class="lbl">AVG ${params.holding}D RETURN, ANY DAY</div></div>
+    <div class="stat"><div class="num">${(r.triggerWin*100).toFixed(0)}%</div><div class="lbl">WIN RATE AFTER FALL</div></div>
+  `;
+
+  drawHistChart(r.triggerFwd, r.baselineFwd);
+
+  document.getElementById('dataShows').innerHTML =
+    `Across the simulated history, <strong>${r.nEvents}</strong> days had a single-day fall of ${Math.abs(params.threshold).toFixed(1)}% or more.
+     The average ${params.holding}-trading-day forward return after those days was <strong>${pct(r.triggerMean)}</strong> (median ${pct(r.triggerMedian)}),
+     compared with <strong>${pct(r.baselineMean)}</strong> after a randomly chosen day. The win rate following a sharp fall was
+     <strong>${(r.triggerWin*100).toFixed(0)}%</strong>, versus <strong>${(r.baselineWin*100).toFixed(0)}%</strong> on average.
+     After the ${params.cost.toFixed(2)}% assumed round-trip cost, the edge over the baseline is <strong>${pct(edge)}</strong> per trade.`;
+
+  let verdict;
+  if(r.nEvents < 20){
+    verdict = `With only ${r.nEvents} trigger events, this sample is too small to draw a confident conclusion either way — the average could easily be dominated by one or two crash episodes.`;
+  } else if(edge > 0.003){
+    verdict = `There is a modest positive edge in this simulated run: buying after a sharp fall and holding for ${params.holding} days outperformed a random day by roughly ${pct(edge)} on average. This is a pattern worth investigating further, not a confirmed strategy.`;
+  } else if (edge < -0.003){
+    verdict = `In this simulated run, buying after a sharp fall did not outperform a random day — if anything it looks slightly worse, which contradicts the "buy the dip" belief. This is evidence against the naive form of the hypothesis, at least on this simulated series.`;
+  } else {
+    verdict = `The difference between post-fall returns and random-day returns is small enough that it looks like noise rather than a real, exploitable effect on this simulated series.`;
+  }
+  document.getElementById('systemThinks').textContent = verdict + " This conclusion is the system's interpretation of the numbers above — it is not the same thing as the numbers themselves, and it would change under different assumptions.";
+
+  document.getElementById('riskNote').innerHTML = `
+    <ul>
+      <li>This ran on <strong>simulated</strong> data designed to resemble NIFTY's statistical character, not the real historical index — treat results as a demonstration of the method, not a real finding.</li>
+      <li>Sharp-fall events tend to cluster in time (crises), so these ${r.nEvents} events are not fully independent samples — the effective sample size is smaller than it looks.</li>
+      <li>Only one threshold (${params.threshold.toFixed(1)}%) and one holding period (${params.holding} days) were tested. A result that only appears at one specific setting and disappears nearby is a classic sign of overfitting.</li>
+      <li>Real transaction costs and slippage are typically worse exactly on the days volatility spikes — the flat ${params.cost.toFixed(2)}% assumption likely understates true cost.</li>
+    </ul>`;
+
+  document.getElementById('nextQs').innerHTML = `
+    <li>Does the result hold up across a <em>range</em> of thresholds and holding periods, or only this exact combination?</li>
+    <li>Does excluding the largest single crisis period change the conclusion?</li>
+    <li>Does a multi-day drawdown definition of "sharp fall" tell a different story than a single-day one?</li>
+    <li>What does risk-adjusted return (not just average return) look like — is the edge worth the drawdown risk taken to capture it?</li>
+  `;
+}
+
+/* ---------- init ---------- */
+renderStepper();
+goStage(0);
+</script>
+</body>
+</html>
