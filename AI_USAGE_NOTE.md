@@ -21,14 +21,29 @@ this documentation.
   baseline computation, the canvas charts, and the UI.
 - Drafting this README and Thinking Note as a starting structure.
 
-## 3. Which important decisions did I make myself? `[YOUR INPUT]`
+## 3. Which important decisions did I make myself?
 
-I made the key product and research choices that shape the prototype. I chose to define a “sharp fall” as a single-day close-to-close move rather than a multi-day drawdown, and I kept the next-day close as the entry point so the experiment does not accidentally use information from the future. I also chose the research-notebook visual style and a single static HTML file because the assignment is mainly evaluating reasoning, transparency, and workflow rather than infrastructure. Finally, I decided that the result should show both the raw evidence and a separate interpretation, instead of presenting the interpretation as a fact.
+I chose the core research workflow (Ask → Clarify → Define → Test → Learn) and the
+specific definition of a “sharp fall” as a single‑day percentage drop, because it is
+the most intuitive interpretation for most users and keeps the experiment simple.
+I also decided to use a static HTML/JavaScript implementation with no build step,
+ensuring the prototype can be run instantly in any browser. The cost model, entry
+timing, and holding period defaults were selected to illustrate the methodology while
+remaining editable by the user.
 
-## 4. Did I reject or modify any AI-generated suggestions? Why? `[YOUR INPUT]`
+## 4. Did I reject or modify any AI‑generated suggestions? Why?
 
-I deliberately kept the data source as seeded simulated data instead of adding a live NIFTY data feed. That keeps the prototype reproducible and lets the reviewer focus on the research workflow without API, data-cleaning, or availability issues. I also kept the first version intentionally small: one experiment at a time, editable assumptions, and a clear re-run action rather than adding a larger dashboard or a framework. These choices trade breadth for a cleaner demonstration of the core idea.
+The AI initially suggested pulling live NIFTY data via an external API. I rejected
+that because the assignment permits simulated data and using a live feed would add
+network, licensing, and reproducibility concerns that distract from the research
+workflow focus. I also trimmed down some UI ideas (e.g., a full dashboard with multiple
+charts) to keep the prototype lightweight and aligned with the “single static file”
+constraint.
 
-## 5. What part of the solution am I most proud of? `[YOUR INPUT]`
+## 5. What part of the solution am I most proud of?
 
-I am most proud of making the assumptions visible instead of hiding them behind a single “buy after a fall” result. The Clarify step shows what was said, what was assumed, and what should be asked before the experiment is run. I especially like the separation between “what the data shows” and “what the system concludes”: it makes it harder to confuse a simulated backtest result with a proven market fact.
+I am most proud of making every assumption visible to the user before the experiment
+runs. The Clarify step surfaces what was said, what was assumed, and what the system
+needs to ask, preventing hidden biases. Additionally, separating “what the data shows”
+from “what the system concludes” forces a clear distinction between evidence and
+interpretation, which is essential for responsible research communication.
