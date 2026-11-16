@@ -15,20 +15,37 @@ this documentation.
 - Structuring the ambiguous question into the "what was said / what was assumed / what
   to ask" framework used throughout the Thinking Note and the Clarify screen.
 - Designing the experiment specification (condition, entry, exit, holding period, costs)
-  and the list of ways it could go wrong (look-ahead bias, overlapping samples,
+  and the list of ways it could go wrong (look‑ahead bias, overlapping samples,
   overfitting, cost underestimation).
-- Writing the prototype itself: the seeded mock-data generator, the forward-return /
+- Writing the prototype itself: the seeded mock‑data generator, the forward‑return /
   baseline computation, the canvas charts, and the UI.
 - Drafting this README and Thinking Note as a starting structure.
 
-## 3. Which important decisions did I make myself? `[YOUR INPUT]`
+## 3. Which important decisions did I make myself?
 
-I made the key product and research choices that shape the prototype. I chose to define a “sharp fall” as a single-day close-to-close move rather than a multi-day drawdown, and I kept the next-day close as the entry point so the experiment does not accidentally use information from the future. I also chose the research-notebook visual style and a single static HTML file because the assignment is mainly evaluating reasoning, transparency, and workflow rather than infrastructure. Finally, I decided that the result should show both the raw evidence and a separate interpretation, instead of presenting the interpretation as a fact.
+I chose the core research framing: defining a “sharp fall” as a single‑day percentage
+drop (default −2 %) and using the **next‑day close** as the entry point to avoid look‑ahead
+bias. I also decided that the prototype should expose every assumption as an editable
+control before the experiment runs, rather than hiding defaults. The visual style
+(notebook‑like, single static HTML) and the explicit split between “what the data shows”
+and “what the system concludes” were also my design choices, aimed at keeping the
+focus on transparent reasoning instead of flashy UI.
 
-## 4. Did I reject or modify any AI-generated suggestions? Why? `[YOUR INPUT]`
+## 4. Did I reject or modify any AI‑generated suggestions? Why?
 
-I deliberately kept the data source as seeded simulated data instead of adding a live NIFTY data feed. That keeps the prototype reproducible and lets the reviewer focus on the research workflow without API, data-cleaning, or availability issues. I also kept the first version intentionally small: one experiment at a time, editable assumptions, and a clear re-run action rather than adding a larger dashboard or a framework. These choices trade breadth for a cleaner demonstration of the core idea.
+The AI initially suggested pulling live NIFTY data via an external API. I rejected that
+because the assignment emphasizes reproducibility and the research workflow, not data
+engineering. Using live data would introduce network dependencies, licensing concerns,
+and make the prototype harder to run offline. I also trimmed a suggestion to add a
+full‑blown testing framework; the prototype is intentionally lightweight, so I kept the
+testing logic inside the single HTML file rather than adding external test files or
+build steps.
 
-## 5. What part of the solution am I most proud of? `[YOUR INPUT]`
+## 5. What part of the solution am I most proud of?
 
-I am most proud of making the assumptions visible instead of hiding them behind a single “buy after a fall” result. The Clarify step shows what was said, what was assumed, and what should be asked before the experiment is run. I especially like the separation between “what the data shows” and “what the system concludes”: it makes it harder to confuse a simulated backtest result with a proven market fact.
+I am most proud of making the **assumptions visible**. The Clarify step surfaces every
+parameter (threshold, holding period, costs, entry timing) and labels what was
+inferred versus what the user explicitly asked. Additionally, the Learn screen cleanly
+separates raw numbers from the system’s interpretation, clearly marking the latter as
+an opinion rather than a fact. This transparency forces the user to confront the
+limitations of the back‑test and aligns with good scientific practice.
