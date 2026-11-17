@@ -69,14 +69,21 @@ volatility clustering, occasional large negative jumps, and small-sample rarity 
 No install needed — it's a single static file.
 
 ```bash
-# Option 1: just open it
+# Option 1: just open it (macOS / Linux)
 open index.html          # macOS
 xdg-open index.html      # Linux
-# or double-click it on Windows
+# Windows (Command Prompt)
+start index.html
+```
 
-# Option 2: serve it locally
+**Option 2: serve it locally** – some browsers restrict canvas and script loading when
+opening files via `file://`. Running a local HTTP server avoids those issues and mirrors
+how the app would be deployed.
+
+```bash
+# Using Python (available on most systems)
 python3 -m http.server 8000
-# then visit http://localhost:8000
+# then visit http://localhost:8000 in your browser
 ```
 
 **To deploy:** drag the folder into Netlify Drop, or push to a GitHub repo and enable
