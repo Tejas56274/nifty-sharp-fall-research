@@ -58,7 +58,7 @@ volatility clustering, occasional large negative jumps, and small-sample rarity 
   multi-day drawdown — editable in the Clarify step.
 - Entry at the **next** day's close (not the fall day's own close) to avoid look-ahead
   bias.
-- Flat illustrative round-trip cost (default 0.10%) — real slippage on volatile days is
+- Flat illustrative round‑trip cost (default **0.10%**, i.e., **0.05% each way**) — real slippage on volatile days is
   likely higher.
 - "NIFTY" is treated as the index level (a simplification — the index itself isn't
   directly tradeable; a real version would need to pick futures/ETF and model that
