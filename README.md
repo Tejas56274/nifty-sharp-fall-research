@@ -1,10 +1,13 @@
 # NIFTY Sharp-Fall Research Console
 
-A small prototype demonstrating the **ASK → CLARIFY → DEFINE → TEST → LEARN** research
-workflow, applied to the question: *"Does buying NIFTY after a sharp fall work?"*
-
-See `THINKING_NOTE.md` for the reasoning behind every design decision below, and
-`AI_USAGE_NOTE.md` for how AI tools were used while building this.
+## Table of Contents
+- [What it does](#what-it-does)
+- [Why simulated data, not a live/real dataset](#why-simulated-data-not-a-livereal-dataset)
+- [Architecture & tech choices](#architecture--tech-choices)
+- [Key assumptions](#key-assumptions)
+- [How to run](#how-to-run)
+- [What I'd improve with more time](#what-id-improve-with-more-time)
+- [AI tools used](#ai-tools-used)
 
 ## What it does
 
