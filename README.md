@@ -1,7 +1,17 @@
 # NIFTY Sharp-Fall Research Console
 
+## Table of Contents
+
+- [What it does](#what-it-does)
+- [Why simulated data, not a live/real dataset](#why-simulated-data-not-a-livereal-dataset)
+- [Architecture & tech choices](#architecture--tech-choices)
+- [Key assumptions](#key-assumptions)
+- [How to run](#how-to-run)
+- [What I'd improve with more time](#what-id-improve-with-more-time)
+- [Further reading](#further-reading)
+
 A small prototype demonstrating the **ASK → CLARIFY → DEFINE → TEST → LEARN** research
-workflow, applied to the question: *"Does buying NIFTY after a sharp fall work?"*
+workflow, applied to the question: *"Does buying NIFTY after a sharp fall work?*"
 
 See `THINKING_NOTE.md` for the reasoning behind every design decision below, and
 `AI_USAGE_NOTE.md` for how AI tools were used while building this.
@@ -95,6 +105,11 @@ GitHub Pages on the `main` branch — no build command required.
   of the same size) instead of only reporting the raw event count as a confidence proxy.
 - Persist experiment runs so a user can compare several parameter settings at once
   rather than overwriting the last run.
+
+## Further reading
+
+- [THINKING_NOTE.md](THINKING_NOTE.md) – detailed design rationale and experiment definition.
+- [AI_USAGE_NOTE.md](AI_USAGE_NOTE.md) – disclosure of AI assistance used during development.
 
 ## AI tools used
 
